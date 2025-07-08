@@ -17,7 +17,7 @@ def parse_key_value(lines, command_prefix, base_labels, separator=':'):
         try:
             float(value)
             clean_key = re.sub(r'[^a-zA-Z0-9_]', '_', key).lower()
-            output.append(f"{command_prefix}_{clean_key}{labels_str}={value}")
+            output.append(f"{command_prefix}_{clean_key}{labels_str} {value}")
         except ValueError:
             continue
     return output
@@ -34,13 +34,13 @@ def parse_deviceinfo(lines, command_prefix, base_labels):
             if match:
                 days, h, m, s = map(int, match.groups())
                 total_seconds = (days * 86400) + (h * 3600) + (m * 60) + s
-                output.append(f"{command_prefix}_uptime_seconds{labels_str}={total_seconds}")
+                output.append(f"{command_prefix}_uptime_seconds{labels_str} {total_seconds}")
         elif key == 'totalmemory':
             match = re.search(r'(\d+)', value_str)
-            if match: output.append(f"{command_prefix}_total_memory_mb{labels_str}={match.group(1)}")
+            if match: output.append(f"{command_prefix}_total_memory_mb{labels_str} {match.group(1)}")
         elif key == 'totalflash':
             match = re.search(r'(\d+)', value_str)
-            if match: output.append(f"{command_prefix}_total_flash_mb{labels_str}={match.group(1)}")
+            if match: output.append(f"{command_prefix}_total_flash_mb{labels_str} {match.group(1)}")
     return output
 
 def parse_dhcp_server(lines, command_prefix, base_labels):
@@ -60,9 +60,9 @@ def parse_dhcp_server(lines, command_prefix, base_labels):
             if expire_match:
                 days, h, m, s = map(int, expire_match.groups())
                 total_seconds = (days * 86400) + (h * 3600) + (m * 60) + s
-                output.append(f'{command_prefix}_lease_expire_seconds{labels_str}={total_seconds}')
+                output.append(f'{command_prefix}_lease_expire_seconds{labels_str} {total_seconds}')
     if total_users:
-        output.append(f'{command_prefix}_total_users{_format_labels(base_labels)}={total_users}')
+        output.append(f'{command_prefix}_total_users{_format_labels(base_labels)} {total_users}')
     return output
 
 def parse_waninfo_all_detail(lines, command_prefix, base_labels):
@@ -74,9 +74,9 @@ def parse_waninfo_all_detail(lines, command_prefix, base_labels):
         all_labels = {**base_labels, **specific_labels}
         labels_str = _format_labels(all_labels)
         status_numeric = 1 if info.get("status", "").lower() == 'enable' else 0
-        output.append(f'{command_prefix}_status{labels_str}={status_numeric}')
-        if info.get("vlan", "").isdigit(): output.append(f'{command_prefix}_vlan{labels_str}={info.get("vlan")}')
-        if info.get("mtu", "").isdigit(): output.append(f'{command_prefix}_mtu{labels_str}={info.get("mtu")}')
+        output.append(f'{command_prefix}_status{labels_str} {status_numeric}')
+        if info.get("vlan", "").isdigit(): output.append(f'{command_prefix}_vlan{labels_str} {info.get("vlan")}')
+        if info.get("mtu", "").isdigit(): output.append(f'{command_prefix}_mtu{labels_str} {info.get("mtu")}')
     for line in lines:
         if "---" in line:
             process_block(current_wan_info)
@@ -111,9 +111,9 @@ def parse_wifi_associate(lines, command_prefix, base_labels):
             specific_labels = {'mac': mac.replace(':', ''), 'ssid': ssid, 'band': band}
             all_labels = {**base_labels, **specific_labels}
             labels_str = _format_labels(all_labels)
-            output.append(f'{command_prefix}_uptime_seconds{labels_str}={time_sec}')
-            output.append(f'{command_prefix}_tx_rate_mbps{labels_str}={tx_rate}')
-            output.append(f'{command_prefix}_rx_rate_mbps{labels_str}={rx_rate}')
+            output.append(f'{command_prefix}_uptime_seconds{labels_str} {time_sec}')
+            output.append(f'{command_prefix}_tx_rate_mbps{labels_str} {tx_rate}')
+            output.append(f'{command_prefix}_rx_rate_mbps{labels_str} {rx_rate}')
     return output
 
 def parse_wifi_information(lines, command_prefix, base_labels):
@@ -124,11 +124,11 @@ def parse_wifi_information(lines, command_prefix, base_labels):
         all_labels = {**base_labels, **specific_labels}
         labels_str = _format_labels(all_labels)
         status_numeric = 1 if info.get("status", "").lower() == 'up' else 0
-        output.append(f'{command_prefix}_status{labels_str}={status_numeric}')
+        output.append(f'{command_prefix}_status{labels_str} {status_numeric}')
         channel_match = re.search(r'(\d+)', info.get("channel", ""))
-        if channel_match: output.append(f'{command_prefix}_channel{labels_str}={channel_match.group(1)}')
+        if channel_match: output.append(f'{command_prefix}_channel{labels_str} {channel_match.group(1)}')
         rate_match = re.search(r'(\d+)\s*M', info.get("supported_max_rate", ""))
-        if rate_match: output.append(f'{command_prefix}_max_rate_mbps{labels_str}={rate_match.group(1)}')
+        if rate_match: output.append(f'{command_prefix}_max_rate_mbps{labels_str} {rate_match.group(1)}')
     for line in lines:
         if "---" in line:
             process_block(current_ssid_info)
@@ -146,18 +146,18 @@ def parse_wap_top(lines, command_prefix, base_labels):
     for line in lines:
         if line.strip().startswith('Mem:'):
             parts = re.findall(r'(\d+)K\s+(\w+)', line)
-            for value, key in parts: output.append(f"{command_prefix}_mem_{key}_kb{labels_str}={value}")
+            for value, key in parts: output.append(f"{command_prefix}_mem_{key}_kb{labels_str} {value}")
         elif line.strip().startswith('CPU:'):
             parts = re.findall(r'(\d+\.\d+)%\s+(\w+)', line)
-            for value, key in parts: output.append(f"{command_prefix}_cpu_{key}_percent{labels_str}={value}")
+            for value, key in parts: output.append(f"{command_prefix}_cpu_{key}_percent{labels_str} {value}")
         elif line.strip().startswith('Load average:'):
             match = re.search(r'Load average:\s+([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)', line)
             if not match: match = re.search(r'Load average:\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)', line)
             if match:
                 load_1m, load_5m, load_15m = match.groups()
-                output.append(f"{command_prefix}_load_average_1m{labels_str}={load_1m}")
-                output.append(f"{command_prefix}_load_average_5m{labels_str}={load_5m}")
-                output.append(f"{command_prefix}_load_average_15m{labels_str}={load_15m}")
+                output.append(f"{command_prefix}_load_average_1m{labels_str} {load_1m}")
+                output.append(f"{command_prefix}_load_average_5m{labels_str} {load_5m}")
+                output.append(f"{command_prefix}_load_average_15m{labels_str} {load_15m}")
     return output
 
 def parse_sfwd_drop(lines, command_prefix, base_labels):
@@ -166,7 +166,7 @@ def parse_sfwd_drop(lines, command_prefix, base_labels):
     for line in lines:
         if ':' in line and not line.strip().startswith('['):
             key, value = [p.strip() for p in line.split(':', 1)]
-            output.append(f"{command_prefix}_{key}{labels_str}={value}")
+            output.append(f"{command_prefix}_{key}{labels_str} {value}")
     header_line, value_line = None, None
     for i, line in enumerate(lines):
         if 'bcast' in line and 'arp' in line:
@@ -176,5 +176,5 @@ def parse_sfwd_drop(lines, command_prefix, base_labels):
     if header_line and value_line:
         for key, value in zip(header_line, value_line):
             clean_key = re.sub(r'[^a-zA-Z0-9_]', '_', key).lower()
-            output.append(f"{command_prefix}_protocol_{clean_key}{labels_str}={value}")
+            output.append(f"{command_prefix}_protocol_{clean_key}{labels_str} {value}")
     return output
