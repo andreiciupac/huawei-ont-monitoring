@@ -1,0 +1,29 @@
+# --- Data and Log Folders ---
+# Ignore the folder where the collector saves its parsed data
+/clean_data/
+
+# --- Python specific ---
+# Ignore Python bytecode and cache folders
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore virtual environment folders
+venv/
+env/
+.venv/
+
+# --- Docker specific ---
+# Ignore Docker Compose override files which might contain secrets
+docker-compose.override.yml
+
+# --- IDE/Editor specific ---
+# Ignore folders created by editors like VS Code or PyCharm
+.vscode/
+.idea/
+
+# --- Secret files ---
+# Ignore environment files that might contain passwords or API keys
+.env
+*.env

@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  collector:
+    build: ./collector
+    container_name: collector
+    # This is the key to solving the WSL->Windows->Router network path.
+    # It makes the container share the host's network stack directly.
+    network_mode: "host"
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      # Maps the host's clean_data folder to the /data folder inside the container
+      - ./clean_data:/data
+      # Mount the ssh config so the container can resolve 'ont.home'
+      - /home/aciupac/.ssh/config:/root/.ssh/config:ro
+
+  exporter:
+    build: ./exporter
+    container_name: exporter
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      # We don't need to expose port 8000 to the host, only to the Docker network
+      - "8000:8000" # Exposing for debug purposes, can be removed later
+    volumes:
+      # Maps the same host folder, so the exporter can read what the collector writes
+      - /home/aciupac/ssh-router/monitoring_stack/clean_data:/data:ro
+    networks:
+      - monitoring
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.retention.time=30d'
+    networks:
+      - monitoring
+    depends_on:
+      - exporter
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks:
+      - monitoring
+    depends_on:
+      - prometheus
+
+networks:
+  monitoring:
+
+volumes:
+  prometheus-data:
+  grafana-data:

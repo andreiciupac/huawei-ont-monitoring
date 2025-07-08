@@ -1,0 +1,8 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'device_exporter'
+    static_configs:
+      # We use the service name 'exporter' which Docker networking understands
+      - targets: ['exporter:8000']
