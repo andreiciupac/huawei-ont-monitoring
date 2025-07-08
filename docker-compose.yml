@@ -9,6 +9,9 @@ services:
     network_mode: "host"
     environment:
       - PYTHONUNBUFFERED=1
+     # This line loads the .env file and makes the variables available
+    env_file:
+      - .env
     volumes:
       # Maps the host's clean_data folder to the /data folder inside the container
       - ./clean_data:/data

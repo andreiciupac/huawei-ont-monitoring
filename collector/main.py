@@ -10,6 +10,33 @@ import config
 import parsers
 from ssh_manager import OntMonitor, load_ssh_config
 
+def cleanup_old_files():
+    """Finds and deletes files in the data directory older than the configured retention period."""
+    print("--- Running Cleanup Job ---")
+    try:
+        retention_str = config.CLEANUP_OLDER_THAN
+        value = int(retention_str[:-1])
+        unit = retention_str[-1].lower()
+
+        command = ["find", config.CLEAN_DATA_DIR, "-type", "f", "-name", "*.txt"]
+
+        if unit == 'd':
+            command.extend(["-mtime", f"+{value}"])
+        elif unit == 'h':
+            command.extend(["-mmin", f"+{value * 60}"])
+        elif unit == 'm':
+            command.extend(["-mmin", f"+{value}"])
+        else:
+            print(f"Warning: Invalid cleanup unit '{unit}'. Cleanup skipped.")
+            return
+            
+        command.append("-delete")
+
+        subprocess.run(command, check=True)
+        print(f"Successfully deleted files older than {retention_str}.")
+    except Exception as e:
+        print(f"Cleanup job failed: {e}")
+
 def process_command(command, ont, output_dir):
     """Runs a command, parses it, and saves the clean output."""
     try:
@@ -70,7 +97,11 @@ def run_job(commands, ont, output_dir):
         print(f"Job failed: {e}")
     
 def main():
-    """Main function to schedule and run data collection jobs."""
+    """Main function to schedule and run data collection and cleanup jobs."""
+    if not config.PASSWORD:
+        print("Error: ONT_PASSWORD environment variable not set. Please create a .env file.")
+        sys.exit(1)
+
     try:
         host, port, username = load_ssh_config(config.SSH_HOST_ALIAS)
     except Exception as e:
@@ -79,13 +110,38 @@ def main():
 
     ont_monitor = OntMonitor(host, port, username, config.PASSWORD)
     
-    schedule.every(1).minutes.do(run_job, commands=config.COMMANDS_1_MIN, ont=ont_monitor, output_dir=config.CLEAN_DATA_DIR)
-    schedule.every(5).minutes.do(run_job, commands=config.COMMANDS_5_MIN, ont=ont_monitor, output_dir=config.CLEAN_DATA_DIR)
+    # Schedule collection jobs
+    schedule.every(1).minutes.do(run_job, commands=config.COMMANDS_1_MIN, ont=ont_monitor)
+    schedule.every(5).minutes.do(run_job, commands=config.COMMANDS_5_MIN, ont=ont_monitor)
+    
+    # Schedule the cleanup job dynamically
+    try:
+        freq_val = int(config.CLEANUP_FREQUENCY[:-1])
+        freq_unit = config.CLEANUP_FREQUENCY[-1].lower()
+
+        scheduler = schedule.every(freq_val)
+
+        if freq_unit == 'm':
+            scheduler.minutes.do(cleanup_old_files)
+        elif freq_unit == 'h':
+            scheduler.hours.do(cleanup_old_files)
+        elif freq_unit == 'd':
+            scheduler.days.at("03:00").do(cleanup_old_files) # Run daily jobs at a set time
+        else:
+            raise ValueError(f"Invalid frequency unit: {freq_unit}")
+        
+        print(f"Cleanup job scheduled to run every {config.CLEANUP_FREQUENCY}.")
+
+    except Exception as e:
+        print(f"Error scheduling cleanup job: {e}. Defaulting to every 1 day.")
+        schedule.every(1).day.at("03:00").do(cleanup_old_files)
+
 
     print("--- Unified Collector & Parser Started ---")
     
-    run_job(config.COMMANDS_1_MIN, ont_monitor, config.CLEAN_DATA_DIR)
-    run_job(config.COMMANDS_5_MIN, ont_monitor, config.CLEAN_DATA_DIR)
+    # Initial run
+    run_job(config.COMMANDS_1_MIN, ont_monitor)
+    run_job(config.COMMANDS_5_MIN, ont_monitor)
 
     try:
         while True:
