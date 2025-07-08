@@ -139,17 +139,32 @@ Once the stack is running, you can access the frontends in your web browser:
 ## Folder Structure
 
 ```
-.
+monitoring_stack/
 ├── collector/          # Contains all scripts for gathering and parsing data.
-│   ├── config.py       # Main configuration file.
-│   ├── main.py         # Entry point for the collector service.
-│   ├── parsers.py      # All specialized parsing functions.
-│   └── ssh_manager.py  # SSH connection logic.
+│   ├── main.py         # The main entry point that starts the scheduler.
+│   ├── config.py       # Central configuration for command lists and settings.
+│   ├── ssh_manager.py  # Handles the SSH connection logic.
+│   ├── parsers.py      # Contains all specialized functions to parse command outputs.
+│   ├── scheduler.py    # Contains the logic for scheduling jobs.
+│   ├── Dockerfile      # Recipe for building the collector's Docker image.
+│   └── requirements.txt# Python libraries needed for the collector.
+│
 ├── exporter/           # Contains the script to expose metrics to Prometheus.
-│   └── exporter.py
-├── clean_data/         # (Ignored by Git) Shared volume where parsed data is stored.
-├── .gitignore          # Specifies files and folders to be ignored by Git.
-├── docker-compose.yml  # Defines and orchestrates all services.
-├── prometheus.yml      # Prometheus configuration file.
-└── README.md           # This file.
+│   ├── exporter.py     # The Python script that runs a web server for Prometheus to scrape.
+│   ├── Dockerfile      # Recipe for building the exporter's Docker image.
+│   └── requirements.txt# Python libraries needed for the exporter.
+│
+├── grafana/            # Contains all assets for automatically setting up Grafana.
+│   ├── dashboards/
+│   │   └── ont_dashboard.json # Your pre-built dashboard file goes here.
+│   └── provisioning/
+│       └── dashboards/
+│           └── main.yml  # Tells Grafana to load dashboards from the above folder.
+│
+├── .env                  # Your private file for secrets (passwords, paths). Ignored by Git.
+├── .env.example          # An example file showing users what variables to set in .env.
+├── .gitignore            # Specifies which files and folders Git should ignore.
+├── docker-compose.yml    # The main file that defines and orchestrates all Docker services.
+├── prometheus.yml        # Configuration file for Prometheus, telling it what to scrape.
+└── README.md             # The main documentation for the project.
 ```

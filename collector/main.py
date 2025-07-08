@@ -5,8 +5,8 @@ from datetime import datetime
 
 import config
 import parsers
-import scheduler # Import the new scheduler module
-from ssh_manager import OntMonitor # This import is needed for type hinting in process_command
+import scheduler
+from ssh_manager import OntMonitor
 
 def process_command(command: str, ont: OntMonitor):
     """Runs a command, parses it, and saves the clean output."""
@@ -14,39 +14,28 @@ def process_command(command: str, ont: OntMonitor):
         raw_output = ont.run_command(command)
         command_prefix = command.replace(' ', '_')
         lines = raw_output.splitlines()
+        content_lines = [line for i, line in enumerate(lines) if i > 0 and not line.lower().startswith('success!')]
         
-        # Filter out lines before the main content and after "success!"
-        content_lines = []
-        parsing_started = False
-        for i, line in enumerate(lines):
-            # Stop at the end signal
-            if line.lower().startswith('success!'):
-                break
-            # Start parsing after the command line
-            if i > 0:
-                content_lines.append(line)
-        
-        # This parser_map should be complete
+        # The parser_map is updated to reflect the new command lists
         parser_map = {
-            "display cpu info": parsers.parse_cpu_info,
+            "display deviceinfo": parsers.parse_deviceinfo,
+            "display waninfo all detail": parsers.parse_waninfo_all_detail,
+            "display wifi information": parsers.parse_wifi_information,
+            "display dhcp server user all": parsers.parse_dhcp_server,
             "wap top": parsers.parse_wap_top,
             "display sfwd drop statistics": parsers.parse_sfwd_drop,
             "display lanport workmode": parsers.parse_lanport_workmode,
-            "display dhcp server user all": parsers.parse_dhcp_server,
             "display wifi associate": parsers.parse_wifi_associate,
-            "display port statistics portid": parsers.parse_key_value,
-            "display deviceinfo": lambda l, p: parsers.parse_key_value(l, p, separator='='),
-            "display waninfo all detail": parsers.parse_key_value,
-            "display wifi information": parsers.parse_key_value,
+            "display portstatistics portnum 1": parsers.parse_key_value,
         }
         
         output_lines = []
-        # Find the correct parser
         for key, parser_func in parser_map.items():
             if key in command:
                 output_lines = parser_func(content_lines, command_prefix)
                 break
-        else: # If no specific parser is found, use the default
+        else:
+            # Fallback for any commands not in the map
             output_lines = parsers.parse_key_value(content_lines, command_prefix)
 
         if output_lines:
@@ -69,5 +58,4 @@ if __name__ == "__main__":
         print("Error: ONT_PASSWORD environment variable not set. Please create a .env file.")
         sys.exit(1)
     
-    # Start the main scheduling loop from the scheduler module
     scheduler.start()
