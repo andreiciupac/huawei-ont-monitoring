@@ -2,13 +2,11 @@
 import time
 import schedule
 import subprocess
-
 import config
 from ssh_manager import OntMonitor, load_ssh_config
-from main import process_command # Import from main.py
+from main import process_command
 
 def cleanup_old_files():
-    """Finds and deletes files in the data directory older than the configured retention period."""
     print("--- Running Cleanup Job ---")
     try:
         retention_str = config.CLEANUP_OLDER_THAN
@@ -28,30 +26,23 @@ def cleanup_old_files():
         print(f"Cleanup job failed: {e}")
 
 def run_job(commands, ont):
-    """Function to be scheduled. Runs a list of commands."""
     print(f"\n--- Running Job: {time.strftime('%Y-%m-%d %H:%M:%S')} ---")
     try:
         ont.connect()
         for cmd in commands:
-            process_command(cmd, ont) # Assumes process_command is in main.py
+            process_command(cmd, ont)
     except Exception as e:
         print(f"Job failed: {e}")
 
 def start():
-    """Initializes and runs the main scheduling loop."""
     try:
         host, port, username = load_ssh_config(config.SSH_HOST_ALIAS)
     except Exception as e:
         print(f"Failed to load SSH config for '{config.SSH_HOST_ALIAS}': {e}")
         return
-
     ont_monitor = OntMonitor(host, port, username, config.PASSWORD)
-    
-    # Schedule collection jobs
     schedule.every(1).minutes.do(run_job, commands=config.COMMANDS_1_MIN, ont=ont_monitor)
     schedule.every(5).minutes.do(run_job, commands=config.COMMANDS_5_MIN, ont=ont_monitor)
-    
-    # Schedule the cleanup job dynamically
     try:
         freq_val = int(config.CLEANUP_FREQUENCY[:-1])
         freq_unit = config.CLEANUP_FREQUENCY[-1].lower()
@@ -64,13 +55,9 @@ def start():
     except Exception as e:
         print(f"Error scheduling cleanup job: {e}. Defaulting to every 1 day.")
         schedule.every(1).day.at("03:00").do(cleanup_old_files)
-
     print("--- Unified Collector & Parser Started ---")
-    
-    # Initial run to get data immediately
     run_job(config.COMMANDS_1_MIN, ont_monitor)
     run_job(config.COMMANDS_5_MIN, ont_monitor)
-
     try:
         while True:
             schedule.run_pending()
