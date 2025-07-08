@@ -78,7 +78,6 @@ cd huawei-ont-monitoring
 Ensure your `~/.ssh/config` file contains an entry for your router, for example:
 
 ```
->>>>>>> 411bb5f (readme update)
 Host ont.home
     HostName 192.168.100.1
     User your_ssh_username
