@@ -1,0 +1,130 @@
+Huawei ONT Monitoring Stack
+This project provides a complete, containerized monitoring solution for Huawei Optical Network Terminals (ONTs) using Prometheus and Grafana. It automatically collects various statistics from the device via SSH, parses the data, and visualizes it in real-time dashboards.
+
+Overview
+The system is composed of several services managed by Docker Compose:
+
+Collector: A Python script that periodically connects to the ONT via SSH, runs a series of commands, and parses the raw output.
+
+Exporter: A lightweight Python web server that reads the parsed data and exposes it as Prometheus-compatible metrics.
+
+Prometheus: A leading time-series database that scrapes the metrics from the exporter and stores them.
+
+Grafana: A powerful visualization platform used to create dashboards from the data stored in Prometheus.
+
+Features
+Automated Data Collection: Runs commands at configurable intervals (e.g., every 1 and 5 minutes) using a built-in scheduler.
+
+Comprehensive Parsing: Includes specialized parsers for various command outputs, from simple key-value pairs to complex tables.
+
+Persistent Storage: Both Prometheus metrics and Grafana dashboards are stored in Docker volumes, ensuring data survives restarts.
+
+Fully Containerized: The entire stack, including the custom Python scripts, is managed by Docker Compose for easy setup and deployment.
+
+Log Rotation: Includes a cron job to automatically clean up old data files, preventing disk space from filling up.
+
+Extensible: The modular structure makes it easy to add new commands and parsers.
+
+Architecture
++----------------+      +------------------+      +-------------------+      +-----------+
+| Huawei ONT     | <--- | Collector        | ---> | /clean_data       | ---> | Exporter  |
+| (SSH Server)   |      | (Python script   |      | (Shared Volume)   |      | (Python   |
++----------------+      | in Docker)       |      +-------------------+      | in Docker)|
+                        +------------------+                                 +-----------+
+                                                                                   |
+                                                                                   | (Scrapes /metrics)
+                                                                                   v
+                                                                             +-------------+
+                                                                             | Prometheus  |
+                                                                             | (in Docker) |
+                                                                             +-------------+
+                                                                                   |
+                                                                                   | (Queries data)
+                                                                                   v
+                                                                             +-----------+
+                                                                             | Grafana   |
+                                                                             |(in Docker)|
+                                                                             +-----------+
+
+Prerequisites
+Docker
+
+Docker Compose
+
+Python 3.x (for running the setup)
+
+Git
+
+A configured ~/.ssh/config file with an entry for your ONT device.
+
+Setup & Installation
+Clone the Repository
+
+git clone https://github.com/andreiciupac/huawei-ont-monitoring.git
+cd huawei-ont-monitoring
+
+Configure SSH
+Ensure your ~/.ssh/config file contains an entry for your router, for example:
+
+Host ont.home
+    HostName 192.168.100.1
+    User your_ssh_username
+    Port 22
+
+The collector container will mount and use this file to resolve the hostname.
+
+Configure the Collector
+Open collector/config.py and edit the following variables:
+
+SSH_HOST_ALIAS: Must match the Host name in your ~/.ssh/config file.
+
+PASSWORD: Your SSH password.
+
+CLEAN_DATA_DIR: This should remain as '/data', as it refers to the path inside the container.
+
+Build and Start the Stack
+Run the following command from the root of the project directory. This will build the custom Docker images for the collector and exporter, and start all services in the background.
+
+docker-compose up -d --build
+
+Usage
+Start the services: docker-compose up -d
+
+Stop the services: docker-compose down
+
+View logs for a specific service: docker-compose logs -f <service_name> (e.g., collector, exporter)
+
+Accessing the Services
+Once the stack is running, you can access the frontends in your web browser:
+
+Prometheus: http://localhost:9090
+
+Grafana: http://localhost:3000 (Default login: admin / admin)
+
+First-Time Grafana Setup
+Log in to Grafana.
+
+Navigate to Configuration (cogwheel) > Data Sources.
+
+Click Add data source and select Prometheus.
+
+Set the Prometheus server URL to http://prometheus:9090.
+
+Click Save & test. You should see a success message.
+
+You can now create dashboards using the metrics collected from your device!
+
+Folder Structure
+.
+├── collector/          # Contains all scripts for gathering and parsing data.
+│   ├── config.py       # Main configuration file.
+│   ├── main.py         # Entry point for the collector service.
+│   ├── parsers.py      # All specialized parsing functions.
+│   └── ssh_manager.py  # SSH connection logic.
+├── exporter/           # Contains the script to expose metrics to Prometheus.
+│   └── exporter.py
+├── clean_data/         # (Ignored by Git) Shared volume where parsed data is stored.
+├── .gitignore          # Specifies files and folders to be ignored by Git.
+├── docker-compose.yml  # Defines and orchestrates all services.
+├── prometheus.yml      # Prometheus configuration file.
+└── README.md           # This file.
