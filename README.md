@@ -28,6 +28,31 @@ The system is composed of several services managed by Docker Compose:
 
 - Extensible: The modular structure makes it easy to add new commands and parsers.
 
+## Architecture
+
+```
++----------------+      +------------------+      +-------------------+      +-----------+
+| Huawei ONT     | <--- | Collector        | ---> | /clean_data       | ---> | Exporter  |
+| (SSH Server)   |      | (Python script   |      | (Shared Volume)   |      | (Python   |
++----------------+      | in Docker)       |      +-------------------+      | in Docker)|
+                        +------------------+                                 +-----------+
+                                                                                   |
+                                                                                   | (Scrapes /metrics)
+                                                                                   v
+                                                                             +-------------+
+                                                                             | Prometheus  |
+                                                                             | (in Docker) |
+                                                                             +-------------+
+                                                                                   |
+                                                                                   | (Queries data)
+                                                                                   v
+                                                                             +-----------+
+                                                                             | Grafana   |
+                                                                             |(in Docker)|
+                                                                             +-----------+
+```
+
+
 ## Prerequisites
 
 - Docker
