@@ -49,7 +49,12 @@ services:
     ports:
       - "3000:3000"
     volumes:
+      # This volume is for persistent dashboards, data sources, etc.
       - grafana-data:/var/lib/grafana
+      # This new volume mounts your dashboard JSON files into Grafana
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+      # This new volume mounts the provisioning config file
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
     networks:
       - monitoring
     depends_on:
