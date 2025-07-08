@@ -1,13 +1,20 @@
 # config.py
 
-# --- SSH and Path Configuration ---
-SSH_HOST_ALIAS = "ont.home"
-PASSWORD = "admin111"
+# The alias for your router from your ~/.ssh/config file
+SSH_HOST_ALIAS = os.getenv("SSH_HOST_ALIAS", "ont")
+
+# The SSH password for your router
+PASSWORD = os.getenv("ONT_PASSWORD")
 
 # The final output directory that the Prometheus exporter will read from.
 # IMPORTANT: Use the absolute path to your clean_data directory.
 CLEAN_DATA_DIR = '/data'
 
+# How long to keep the parsed data files. Defaults to 7 days.
+CLEANUP_OLDER_THAN = os.getenv("CLEANUP_OLDER_THAN", "7d")
+
+# How often to run the cleanup job. Defaults to every 1 day.
+CLEANUP_FREQUENCY = os.getenv("CLEANUP_FREQUENCY", "1d")
 
 # --- Command Scheduling ---
 
