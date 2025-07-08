@@ -1,31 +1,36 @@
-Huawei ONT Monitoring Stack
+# Huawei ONT Monitoring Stack
+
 This project provides a complete, containerized monitoring solution for Huawei Optical Network Terminals (ONTs) using Prometheus and Grafana. It automatically collects various statistics from the device via SSH, parses the data, and visualizes it in real-time dashboards.
 
-Overview
+## Overview
+
 The system is composed of several services managed by Docker Compose:
 
-Collector: A Python script that periodically connects to the ONT via SSH, runs a series of commands, and parses the raw output.
+1. Collector: A Python script that periodically connects to the ONT via SSH, runs a series of commands, and parses the raw output.
 
-Exporter: A lightweight Python web server that reads the parsed data and exposes it as Prometheus-compatible metrics.
+2. Exporter: A lightweight Python web server that reads the parsed data and exposes it as Prometheus-compatible metrics.
 
-Prometheus: A leading time-series database that scrapes the metrics from the exporter and stores them.
+3. Prometheus: A leading time-series database that scrapes the metrics from the exporter and stores them.
 
-Grafana: A powerful visualization platform used to create dashboards from the data stored in Prometheus.
+4. Grafana: A powerful visualization platform used to create dashboards from the data stored in Prometheus.
 
-Features
-Automated Data Collection: Runs commands at configurable intervals (e.g., every 1 and 5 minutes) using a built-in scheduler.
+## Features
 
-Comprehensive Parsing: Includes specialized parsers for various command outputs, from simple key-value pairs to complex tables.
+- Automated Data Collection: Runs commands at configurable intervals (e.g., every 1 and 5 minutes) using a built-in scheduler.
 
-Persistent Storage: Both Prometheus metrics and Grafana dashboards are stored in Docker volumes, ensuring data survives restarts.
+- Comprehensive Parsing: Includes specialized parsers for various command outputs, from simple key-value pairs to complex tables.
 
-Fully Containerized: The entire stack, including the custom Python scripts, is managed by Docker Compose for easy setup and deployment.
+- Persistent Storage: Both Prometheus metrics and Grafana dashboards are stored in Docker volumes, ensuring data survives restarts.
 
-Log Rotation: Includes a cron job to automatically clean up old data files, preventing disk space from filling up.
+- Fully Containerized: The entire stack, including the custom Python scripts, is managed by Docker Compose for easy setup and deployment.
 
-Extensible: The modular structure makes it easy to add new commands and parsers.
+- Log Rotation: Includes a cron job to automatically clean up old data files, preventing disk space from filling up.
 
-Architecture
+- Extensible: The modular structure makes it easy to add new commands and parsers.
+
+## Architecture
+
+```
 +----------------+      +------------------+      +-------------------+      +-----------+
 | Huawei ONT     | <--- | Collector        | ---> | /clean_data       | ---> | Exporter  |
 | (SSH Server)   |      | (Python script   |      | (Shared Volume)   |      | (Python   |
@@ -45,76 +50,92 @@ Architecture
                                                                              | Grafana   |
                                                                              |(in Docker)|
                                                                              +-----------+
+```
 
-Prerequisites
-Docker
 
-Docker Compose
+## Prerequisites
 
-Python 3.x (for running the setup)
+- Docker
 
-Git
+- Docker Compose
 
-A configured ~/.ssh/config file with an entry for your ONT device.
+- Python 3.x (for running the setup)
 
-Setup & Installation
-Clone the Repository
+- Git
 
+- A configured `~/.ssh/config` file with an entry for your ONT device.
+
+## Setup & Installation
+
+1. Clone the Repository
+
+```bash
 git clone https://github.com/andreiciupac/huawei-ont-monitoring.git
 cd huawei-ont-monitoring
+```
 
-Configure SSH
-Ensure your ~/.ssh/config file contains an entry for your router, for example:
+2. Configure SSH
+Ensure your `~/.ssh/config` file contains an entry for your router, for example:
 
+```
+>>>>>>> 411bb5f (readme update)
 Host ont.home
     HostName 192.168.100.1
     User your_ssh_username
     Port 22
+```
 
 The collector container will mount and use this file to resolve the hostname.
 
-Configure the Collector
-Open collector/config.py and edit the following variables:
+3. Configure the Collector
+Open `collector/config.py` and edit the following variables:
 
-SSH_HOST_ALIAS: Must match the Host name in your ~/.ssh/config file.
+- `SSH_HOST_ALIAS`: Must match the Host name in your ~/.ssh/config file.
 
-PASSWORD: Your SSH password.
+- `PASSWORD`: Your SSH password.
 
-CLEAN_DATA_DIR: This should remain as '/data', as it refers to the path inside the container.
+- `CLEAN_DATA_DIR`: This should remain as '/data', as it refers to the path inside the container.
 
-Build and Start the Stack
+4. Build and Start the Stack
 Run the following command from the root of the project directory. This will build the custom Docker images for the collector and exporter, and start all services in the background.
 
+```bash
 docker-compose up -d --build
+```
 
-Usage
-Start the services: docker-compose up -d
+## Usage
 
-Stop the services: docker-compose down
+- Start the services: `docker-compose up -d`
 
-View logs for a specific service: docker-compose logs -f <service_name> (e.g., collector, exporter)
+- Stop the services: `docker-compose down`
 
-Accessing the Services
+- View logs for a specific service: `docker-compose logs -f <service_name>` (e.g., collector, exporter)
+
+### Accessing the Services
+
 Once the stack is running, you can access the frontends in your web browser:
 
-Prometheus: http://localhost:9090
+- Prometheus: `http://localhost:9090`
 
-Grafana: http://localhost:3000 (Default login: admin / admin)
+- Grafana: `http://localhost:3000` (Default login: admin / admin)
 
-First-Time Grafana Setup
-Log in to Grafana.
+### First-Time Grafana Setup
 
-Navigate to Configuration (cogwheel) > Data Sources.
+1. Log in to Grafana.
 
-Click Add data source and select Prometheus.
+2. Navigate to Configuration (cogwheel) > Data Sources.
 
-Set the Prometheus server URL to http://prometheus:9090.
+3. Click Add data source and select Prometheus.
 
-Click Save & test. You should see a success message.
+4. Set the Prometheus server URL to http://prometheus:9090.
 
-You can now create dashboards using the metrics collected from your device!
+5. Click Save & test. You should see a success message.
 
-Folder Structure
+6. You can now create dashboards using the metrics collected from your device!
+
+## Folder Structure
+
+```
 .
 ├── collector/          # Contains all scripts for gathering and parsing data.
 │   ├── config.py       # Main configuration file.
@@ -128,3 +149,4 @@ Folder Structure
 ├── docker-compose.yml  # Defines and orchestrates all services.
 ├── prometheus.yml      # Prometheus configuration file.
 └── README.md           # This file.
+```
