@@ -53,15 +53,19 @@ The system is composed of several services managed by Docker Compose:
 ```
 
 
+### Compatibility
+
+*Note:* This project has been developed and tested specifically with a Huawei OptiXstar HG8145X6-10 ONT. While the parsers may work for other Huawei models, compatibility is not guaranteed.
+
 ## Prerequisites
 
-- Docker
-
-- Docker Compose
+- Docker & Docker Compose
 
 - Python 3.x (for running the setup)
 
 - Git
+
+- *SSH access to the target ONT device.* The device must be reachable from the machine running the Docker stack.
 
 - A configured `~/.ssh/config` file with an entry for your ONT device.
 
