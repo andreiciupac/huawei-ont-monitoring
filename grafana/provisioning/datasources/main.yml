@@ -11,6 +11,7 @@ datasources:
     access: proxy
     # <string> url
     url: http://prometheus:9090
+    uid: PBFA97CFB590B2093
     # <bool> sets this data source as the default one for new panels
     isDefault: true
     # <bool> allow users to edit dashboards in the UI

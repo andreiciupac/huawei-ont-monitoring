@@ -46,6 +46,9 @@ services:
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
+    environment:
+      # This new variable tells Grafana to not force a password change on first login
+      - GF_SECURITY_DISABLE_INITIAL_ADMIN_PASSWORD_CHANGE=true
     ports:
       - "3000:3000"
     volumes:
