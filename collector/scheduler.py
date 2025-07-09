@@ -58,6 +58,9 @@ def start():
     print("--- Unified Collector & Parser Started ---")
     run_job(config.COMMANDS_1_MIN, ont_monitor)
     run_job(config.COMMANDS_5_MIN, ont_monitor)
+
+    cleanup_old_files()
+    
     try:
         while True:
             schedule.run_pending()

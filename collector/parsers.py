@@ -178,3 +178,25 @@ def parse_sfwd_drop(lines, command_prefix, base_labels):
             clean_key = re.sub(r'[^a-zA-Z0-9_]', '_', key).lower()
             output.append(f"{command_prefix}_protocol_{clean_key}{labels_str} {value}")
     return output
+
+def parse_cpu_info(lines, command_prefix, base_labels):
+    output, cpu_data, processor_id = [], {}, None
+    for line in lines:
+        if not line.strip():
+            if processor_id is not None and 'BogoMIPS' in cpu_data:
+                specific_labels = {'processor': processor_id}
+                all_labels = {**base_labels, **specific_labels}
+                labels_str = _format_labels(all_labels)
+                output.append(f"{command_prefix}_bogomips{labels_str} {cpu_data['BogoMIPS']}")
+            cpu_data, processor_id = {}, None
+            continue
+        if ':' in line:
+            key, value = [p.strip() for p in line.split(':', 1)]
+            if key == 'processor': processor_id = value
+            else: cpu_data[key] = value
+    if processor_id is not None and 'BogoMIPS' in cpu_data:
+        specific_labels = {'processor': processor_id}
+        all_labels = {**base_labels, **specific_labels}
+        labels_str = _format_labels(all_labels)
+        output.append(f"{command_prefix}_bogomips{labels_str} {cpu_data['BogoMIPS']}")
+    return output
