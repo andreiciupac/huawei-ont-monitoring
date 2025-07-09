@@ -1,22 +1,23 @@
 # collector/main.py
 import sys
+import re
 from pathlib import Path
 from datetime import datetime
-
 import config
 import parsers
 import scheduler
 from ssh_manager import OntMonitor
 
 def process_command(command: str, ont: OntMonitor):
-    """Runs a command, parses it, and saves the clean output."""
     try:
         raw_output = ont.run_command(command)
         command_prefix = command.replace(' ', '_')
         lines = raw_output.splitlines()
         content_lines = [line for i, line in enumerate(lines) if i > 0 and not line.lower().startswith('success!')]
+        port_match = re.search(r'portnum_(\d+)', command_prefix)
+        port_label = port_match.group(1) if port_match else 'unknown'
+        base_labels = {'command': command_prefix, 'port': port_label}
         
-        # The parser_map is updated to reflect the new command lists
         parser_map = {
             "display deviceinfo": parsers.parse_deviceinfo,
             "display waninfo all detail": parsers.parse_waninfo_all_detail,
@@ -32,11 +33,10 @@ def process_command(command: str, ont: OntMonitor):
         output_lines = []
         for key, parser_func in parser_map.items():
             if key in command:
-                output_lines = parser_func(content_lines, command_prefix)
+                output_lines = parser_func(content_lines, command_prefix, base_labels)
                 break
         else:
-            # Fallback for any commands not in the map
-            output_lines = parsers.parse_key_value(content_lines, command_prefix)
+            output_lines = parsers.parse_key_value(content_lines, command_prefix, base_labels)
 
         if output_lines:
             command_output_dir = Path(config.CLEAN_DATA_DIR) / command_prefix
@@ -49,7 +49,6 @@ def process_command(command: str, ont: OntMonitor):
             print(f"Successfully processed and saved '{command}' to {filepath}")
         else:
             print(f"Warning: No parsable data generated for command '{command}'.")
-
     except Exception as e:
         print(f"Failed to process command '{command}': {e}")
 
@@ -57,5 +56,4 @@ if __name__ == "__main__":
     if not config.PASSWORD:
         print("Error: ONT_PASSWORD environment variable not set. Please create a .env file.")
         sys.exit(1)
-    
     scheduler.start()
