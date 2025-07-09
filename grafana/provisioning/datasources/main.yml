@@ -1,0 +1,17 @@
+# /grafana/provisioning/datasources/main.yml
+apiVersion: 1
+
+# List of data sources to insert/update depending on what's available in the database
+datasources:
+  # <string> name of the data source. Required
+  - name: Prometheus
+    # <string> data source type. Required
+    type: prometheus
+    # <string> access mode. proxy or direct (Server or Browser in the UI). Required
+    access: proxy
+    # <string> url
+    url: http://prometheus:9090
+    # <bool> sets this data source as the default one for new panels
+    isDefault: true
+    # <bool> allow users to edit dashboards in the UI
+    editable: false
