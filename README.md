@@ -55,21 +55,18 @@ The system is composed of several services managed by Docker Compose:
 * Git
 * **SSH access to the target ONT device.** The device must be reachable from the machine running the Docker stack.
 
-:::{note}
-
-Enabling SSH Access on the Huawei `HG8145X6-10 ONT`:
-- Log into the web interface (e.g., `192.168.100.1`).
-- Navigate to Advanced Settings > Security > Precise Device Access Control.
-- Enable Precise Device Access Control if it's disabled.
-- Click New and configure the rule:
-      - Port Type: `LAN`
-      - Port Name: Select the port you will connect from
-      - Appliacation: `SSH` (You can select other ones if desired)
-      - SSH Password: Create your SSH password and confirm it below
-      - Mode: `Permit`
-      - Click `Apply` to save.
-
-:::
+> [!NOTE] 
+>Enabling SSH Access on the Huawei `HG8145X6-10 ONT`:
+>- Log into the web interface (e.g., `192.168.100.1`).
+>- Navigate to Advanced Settings > Security > Precise Device Access Control.
+>- Enable Precise Device Access Control if it's disabled.
+>- Click New and configure the rule:
+>      - Port Type: `LAN`
+>      - Port Name: Select the port you will connect from
+>      - Appliacation: `SSH` (You can select other ones if desired)
+>      - SSH Password: Create your SSH password and confirm it below
+>      - Mode: `Permit`
+>      - Click `Apply` to save.
 
 ## Setup & Installation
 
@@ -85,22 +82,18 @@ Enabling SSH Access on the Huawei `HG8145X6-10 ONT`:
     cp .env.example .env
     ```
 
+> [!NOTE] 
+>Make sure that the ~/.ssh/config file exists and is configured
+>It should look something like this:
+>  ```
+>  Host ont
+>    Hostname 192.168.100.1
+>    User root
+>  ```
+
 3.  **Configure `.env`**
     Open the newly created `.env` file and fill in your specific details:
     * `SSH_HOST_ALIAS`: Must match the `Host` name in your `~/.ssh/config` file.
-
-    :::{note}
-    
-    Make sure that the ~/.ssh/config file exists and is configured
-    It should look something like this:
-    ```
-    Host ont
-      Hostname 192.168.100.1
-      User root
-    ```
-    
-    :::
-
     * `ONT_PASSWORD`: Your SSH password.
     * `CLEANUP_OLDER_THAN`: Set your desired data retention (e.g., `7d`, `48h`, `15m`).
     * `CLEANUP_FREQUENCY`: Set how often the cleanup job runs (e.g., `1d`, `1h`, `30m`).
