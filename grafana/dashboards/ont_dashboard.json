@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 1,
+  "id": 2,
   "links": [],
   "panels": [
     {
@@ -37,7 +37,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "derc0j6vdh8u8b"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -187,7 +187,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "derc0j6vdh8u8b"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -270,7 +270,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "derc0j6vdh8u8b"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -414,7 +414,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "derc0j6vdh8u8b"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -475,7 +475,8 @@
     },
     {
       "datasource": {
-        "uid": "derc0j6vdh8u8b"
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -535,7 +536,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "derc0j6vdh8u8b"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -738,7 +739,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "derc0j6vdh8u8b"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -886,7 +887,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "derc0j6vdh8u8b"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -1034,7 +1035,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "derc0j6vdh8u8b"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -1155,7 +1156,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "derc0j6vdh8u8b"
+        "uid": "PBFA97CFB590B2093"
       },
       "description": "This graph shows the real-time rate (packets per second) of different types of dropped packets. A sustained rate above zero indicates an active network problem.\n\nTotal Switch Drops (LSW): The overall rate of packets dropped by the main switching hardware. This is a key indicator of a general forwarding issue.\n\nCPU Drops (CTP): The rate of packets dropped on their way to the CPU. A high rate suggests the control plane is overloaded, possibly due to a network storm or DoS attack.\n\nVLAN/Bridge Drops (VBR): The rate of packets dropped due to issues with VLAN or bridging configurations.\n\nARP Drops: The rate of dropped ARP packets. A high rate is a classic symptom of an ARP storm, which can degrade network performance.",
       "fieldConfig": {
@@ -1288,7 +1289,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "derc0j6vdh8u8b"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -1415,7 +1416,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "derc0j6vdh8u8b"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -1572,7 +1573,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "derc0j6vdh8u8b"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -1752,7 +1753,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "derc0j6vdh8u8b"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -1958,5 +1959,5 @@
   "timezone": "browser",
   "title": "Huawei ONT",
   "uid": "06ac666a-3d1d-4e29-b222-1007fab7d511",
-  "version": 37
+  "version": 1
 }
