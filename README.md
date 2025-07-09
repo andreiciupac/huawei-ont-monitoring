@@ -88,6 +88,19 @@ Enabling SSH Access on the Huawei `HG8145X6-10 ONT`:
 3.  **Configure `.env`**
     Open the newly created `.env` file and fill in your specific details:
     * `SSH_HOST_ALIAS`: Must match the `Host` name in your `~/.ssh/config` file.
+
+    :::{note}
+    
+    Make sure that the ~/.ssh/config file exists and is configured
+    It should look something like this:
+    ```
+    Host ont
+      Hostname 192.168.100.1
+      User root
+    ```
+    
+    :::
+
     * `ONT_PASSWORD`: Your SSH password.
     * `CLEANUP_OLDER_THAN`: Set your desired data retention (e.g., `7d`, `48h`, `15m`).
     * `CLEANUP_FREQUENCY`: Set how often the cleanup job runs (e.g., `1d`, `1h`, `30m`).
