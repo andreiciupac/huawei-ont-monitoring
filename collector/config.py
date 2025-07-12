@@ -22,7 +22,7 @@ CLEANUP_FREQUENCY = os.getenv("CLEANUP_FREQUENCY", "1d")
 
 
 # --- Command Scheduling ---
-COMMANDS_1_MIN = [
+COMMANDS_30_SEC = [
     "display sfwd drop statistics",
     "display portstatistics portnum 1",
     "wap top",

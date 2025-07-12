@@ -1091,7 +1091,7 @@
               }
             ]
           },
-          "unit": "Bps"
+          "unit": "bps"
         },
         "overrides": []
       },
@@ -1123,8 +1123,8 @@
             "uid": "derc0j6vdh8u8b"
           },
           "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "rate(display_portstatistics_portnum_1_rx_byte_ok[5m])",
+          "editorMode": "code",
+          "expr": "rate(display_portstatistics_portnum_1_rx_byte_ok[1m]) * 8",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "LAN 1 Inbound",
@@ -1138,8 +1138,8 @@
             "uid": "derc0j6vdh8u8b"
           },
           "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "rate(display_portstatistics_portnum_1_tx_byte_ok[5m])",
+          "editorMode": "code",
+          "expr": "rate(display_portstatistics_portnum_1_tx_byte_ok[1m]) * 8",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
