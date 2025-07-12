@@ -42,6 +42,7 @@ def start():
         return
     ont_monitor = OntMonitor(host, port, username, config.PASSWORD)
     schedule.every(30).seconds.do(run_job, commands=config.COMMANDS_30_SEC, ont=ont_monitor)
+    schedule.every(1).minutes.do(run_job, commands=config.COMMANDS_1_MIN, ont=ont_monitor)
     schedule.every(5).minutes.do(run_job, commands=config.COMMANDS_5_MIN, ont=ont_monitor)
     try:
         freq_val = int(config.CLEANUP_FREQUENCY[:-1])
@@ -57,6 +58,7 @@ def start():
         schedule.every(1).day.at("03:00").do(cleanup_old_files)
     print("--- Unified Collector & Parser Started ---")
     run_job(config.COMMANDS_30_SEC, ont_monitor)
+    run_job(config.COMMANDS_1_MIN, ont_monitor)
     run_job(config.COMMANDS_5_MIN, ont_monitor)
 
     cleanup_old_files()

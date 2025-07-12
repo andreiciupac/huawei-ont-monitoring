@@ -25,8 +25,12 @@ CLEANUP_FREQUENCY = os.getenv("CLEANUP_FREQUENCY", "1d")
 COMMANDS_30_SEC = [
     "display sfwd drop statistics",
     "display portstatistics portnum 1",
+]
+
+COMMANDS_1_MIN = [
     "wap top",
 ]
+
 COMMANDS_5_MIN = [
     "display lanport workmode",
     "display dhcp server user all",
